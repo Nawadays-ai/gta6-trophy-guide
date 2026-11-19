@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GTA VI Trophy Guide &amp; Tracker — Road to the Platinum</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="sticky-progress" role="status" aria-live="polite">
+  <span id="stickyProgressText">0 of 55 earned</span>
+  <div class="sticky-bar"><div id="stickyProgressFill" class="sticky-fill" style="width:0%"></div></div>
+  <span id="stickyPointsText">0 / 1,350 points</span>
+</div>
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="kicker">Grand Theft Auto VI &middot; PlayStation 5</p>
+    <h1>Road to the Platinum</h1>
+    <p class="subtitle">Every one of the 55 trophies, with a guide in our own words, a checklist that remembers your progress, and a roadmap to <strong>Vice Got a Price!</strong></p>
+    <div class="progress-wrap" role="status" aria-live="polite">
+      <div class="progress-line"><span id="progressText">0 of 55 earned</span><span id="progressPoints">0 / 1,350 points</span></div>
+      <div class="progress-bar"><div id="progressFill" class="progress-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="panel" id="roadmapPanel" aria-labelledby="roadmapTitle">
+    <h2 id="roadmapTitle">Roadmap to the platinum</h2>
+    <p class="panel-note">Built from the official trophy descriptions. Story trophies unlock in order as you play; only one trophy can be missed.</p>
+    <ol class="roadmap" id="roadmap"></ol>
+    <p class="missable-alert"><strong>Missable warning:</strong> <span id="missableAlertText"></span></p>
+  </section>
+
+  <section class="panel controls" aria-label="Tracker controls">
+    <div class="control-row">
+      <label class="search-label">Search <input id="search" type="search" placeholder="Trophy name or keyword…" autocomplete="off"></label>
+      <label>Kind
+        <select id="kind">
+          <option value="all">All kinds</option>
+          <option value="story">Story</option>
+          <option value="missable">Missable</option>
+          <option value="collectible">Collectibles</option>
+          <option value="activity">Activities</option>
+          <option value="online">Online</option>
+        </select>
+      </label>
+      <label>Grade
+        <select id="grade">
+          <option value="all">All grades</option>
+          <option value="platinum">Platinum</option>
+          <option value="gold">Gold</option>
+          <option value="silver">Silver</option>
+          <option value="bronze">Bronze</option>
+        </select>
+      </label>
+      <label class="check-label"><input id="spoiler" type="checkbox"> Hide story spoilers</label>
+      <label class="check-label"><input id="hideEarned" type="checkbox"> Hide earned</label>
+    </div>
+    <div class="control-row">
+      <button id="exportBtn" type="button">Export progress</button>
+      <label class="import-label">Import progress <input id="importFile" type="file" accept="application/json,.json"></label>
+      <button id="resetBtn" type="button">Reset progress</button>
+      <span id="filterCount" class="filter-count" aria-live="polite"></span>
+    </div>
+    <p class="controls-note">Progress is saved in this browser (localStorage). Export downloads a file you can import back on any computer. Spoiler mode hides the names and descriptions of secret story trophies until you earn them.</p>
+  </section>
+
+  <section aria-labelledby="listTitle">
+    <h2 id="listTitle" class="sr-only">Trophy checklist</h2>
+    <p id="emptyState" class="empty-state" hidden></p>
+    <ul id="trophyList" class="trophy-list"></ul>
+  </section>
+
+  <section class="panel" aria-labelledby="sourcesTitle">
+    <h2 id="sourcesTitle">Sources &amp; how this guide was written</h2>
+    <p>Trophy names, descriptions and grades are as PlayStation publishes them, from the official list recorded by Exophase. Every guide on this page is written in our own words for this guide; where a method was not yet confirmed at launch, the trophy says so honestly instead of guessing. Methods draw on:</p>
+    <ul class="source-links">
+      <li><a href="https://www.exophase.com/game/grand-theft-auto-vi-psn/trophies/">Exophase — GTA VI trophy list</a> (official names, descriptions, grades)</li>
+      <li><a href="https://www.powerpyx.com/grand-theft-auto-vi-gta-6-trophy-guide-roadmap/">PowerPyx — GTA 6 Trophy Guide &amp; Roadmap</a></li>
+      <li><a href="https://www.pushsquare.com/guides/gta-6-trophy-guide-all-trophies-and-how-to-get-the-platinum">Push Square — GTA 6 Trophy Guide</a></li>
+      <li><a href="https://psnprofiles.com/trophies/grand-theft-auto-vi">PSNProfiles — GTA VI trophy list</a></li>
+    </ul>
+    <p class="fineprint">An unofficial fan guide. Not affiliated with Rockstar Games or PlayStation. No Rockstar logo, artwork or game screenshots are used here; the design is our own. The guide works fully offline: it loads only its own files and makes no network request.</p>
+  </section>
+</main>
+
+<footer>
+  <p>GTA VI Trophy Guide &amp; Tracker &middot; 55 trophies &middot; 1,350 points &middot; Built as an offline static web app.</p>
+</footer>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

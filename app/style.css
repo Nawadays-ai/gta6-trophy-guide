@@ -1,0 +1,150 @@
+/* Road to the Platinum — original Vice City sunset look: deep violet sky, hot pink and
+   warm orange accents, flat colours, no gradients, no external assets, no Rockstar art. */
+:root {
+  --night: #17112e;
+  --night-2: #221741;
+  --panel: #fff8ef;
+  --ink: #241a33;
+  --muted: #6d5f7d;
+  --pink: #ff2e88;
+  --orange: #ff7a1a;
+  --teal: #0e7c7b;
+  --gold: #b8860b;
+  --silver: #5f6b7a;
+  --bronze: #8a5a2b;
+  --line: #e4d6c8;
+  --earned-bg: #e7f6ec;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Segoe UI", Verdana, sans-serif;
+  background: var(--night);
+  color: var(--ink);
+  line-height: 1.45;
+}
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.sticky-progress {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; gap: 12px; align-items: center;
+  background: var(--night); color: #fff; font-weight: bold; font-size: 14px;
+  padding: 8px 20px; border-bottom: 2px solid var(--pink);
+}
+.sticky-bar { flex: 1; background: #3a2d63; height: 10px; border-radius: 5px; overflow: hidden; }
+.sticky-fill { height: 100%; background: var(--pink); width: 0%; }
+.masthead {
+  background: var(--night-2);
+  color: #fff;
+  border-bottom: 5px solid var(--pink);
+  padding: 28px 20px 22px;
+}
+.masthead-inner { max-width: 1080px; margin: 0 auto; }
+.kicker {
+  margin: 0 0 4px; color: #ffb3d1; letter-spacing: 0.14em;
+  text-transform: uppercase; font-size: 13px; font-weight: bold;
+}
+.masthead h1 {
+  margin: 0 0 6px; font-size: 44px; line-height: 1.05; letter-spacing: -0.5px;
+}
+.masthead h1::after { content: ""; display: block; width: 120px; height: 6px; background: var(--orange); margin-top: 10px; }
+.subtitle { margin: 0 0 16px; color: #e8ddf5; max-width: 760px; font-size: 17px; }
+.progress-line {
+  display: flex; justify-content: space-between; font-weight: bold;
+  font-size: 15px; margin-bottom: 6px;
+}
+.progress-bar { background: #3a2d63; height: 16px; border-radius: 8px; overflow: hidden; }
+.progress-fill {
+  height: 100%; background: var(--pink); width: 0%;
+  transition: width 0.3s ease;
+}
+main { max-width: 1080px; margin: 0 auto; padding: 20px 20px 8px; }
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 12px; padding: 18px 20px; margin-bottom: 18px;
+}
+.panel h2 { margin: 0 0 8px; font-size: 22px; }
+.panel-note { margin: 0 0 12px; color: var(--muted); }
+.roadmap { margin: 0; padding-left: 22px; }
+.roadmap li { margin-bottom: 10px; }
+.roadmap li strong { color: var(--night-2); }
+.roadmap .stage-count { color: var(--muted); font-size: 13px; }
+.missable-alert {
+  margin: 14px 0 0; padding: 10px 12px;
+  background: #ffe9e9; border-left: 5px solid #d21f3c; border-radius: 6px;
+}
+.controls .control-row {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  align-items: end; margin-bottom: 10px;
+}
+.controls label { font-weight: bold; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.controls .check-label, .controls .import-label { flex-direction: row; align-items: center; }
+.controls input[type="search"], .controls select {
+  font: inherit; padding: 8px 10px; border: 2px solid var(--line);
+  border-radius: 8px; background: #fff; color: var(--ink); min-width: 170px;
+}
+.controls input[type="search"] { min-width: 240px; }
+.controls input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--pink); }
+.controls button {
+  font: inherit; font-weight: bold; cursor: pointer;
+  padding: 9px 14px; border-radius: 8px; border: 2px solid var(--night-2);
+  background: var(--night-2); color: #fff;
+}
+.controls button:hover { background: var(--pink); border-color: var(--pink); }
+.import-label { cursor: pointer; }
+.import-label input { font-size: 12px; }
+.filter-count { font-weight: bold; color: var(--muted); align-self: center; }
+.controls-note { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.empty-state {
+  background: var(--panel); border: 1px dashed var(--line); border-radius: 12px;
+  padding: 22px; text-align: center; font-size: 16px; margin: 0 0 18px;
+}
+.trophy-list { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 12px; }
+.trophy {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; display: grid;
+  grid-template-columns: 28px 1fr; gap: 6px 12px; align-items: start;
+}
+.trophy.earned { background: var(--earned-bg); border-color: #9fd6ae; }
+.trophy input[type="checkbox"] { width: 22px; height: 22px; margin-top: 3px; accent-color: var(--teal); cursor: pointer; }
+.trophy-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+.trophy-name { font-size: 18px; font-weight: bold; margin: 0; }
+.trophy-name.earned-name { text-decoration: line-through; text-decoration-thickness: 2px; }
+.badge {
+  display: inline-block; font-size: 12px; font-weight: bold; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 2px 8px; border-radius: 20px; color: #fff;
+  white-space: nowrap;
+}
+.badge.platinum { background: #7a5fd0; }
+.badge.gold { background: var(--gold); }
+.badge.silver { background: var(--silver); }
+.badge.bronze { background: var(--bronze); }
+.badge.missable { background: #d21f3c; }
+.badge.unconfirmed { background: #8a6d00; }
+.badge.secret-tag { background: var(--night-2); }
+.badge.points { background: #efe6d8; color: var(--ink); }
+.trophy-desc { margin: 2px 0 0; color: #4a3d5c; font-style: italic; }
+.trophy-meta { color: var(--muted); font-size: 13px; margin: 2px 0 0; }
+.trophy details { margin-top: 4px; }
+.trophy summary {
+  cursor: pointer; font-weight: bold; color: var(--pink); font-size: 15px;
+}
+.trophy summary:hover { text-decoration: underline; }
+.guide-text { margin: 8px 0 6px; }
+.guide-sources { margin: 0; color: var(--muted); font-size: 13px; }
+.guide-sources a { color: var(--teal); }
+.hidden-name { color: var(--muted); font-style: italic; }
+.source-links { margin: 8px 0; padding-left: 20px; }
+.source-links a { color: var(--teal); font-weight: bold; }
+.fineprint { color: var(--muted); font-size: 13px; }
+footer {
+  max-width: 1080px; margin: 0 auto; padding: 6px 20px 26px;
+  color: #b9a8d8; font-size: 13px; text-align: center;
+}
+@media (max-width: 640px) {
+  .masthead h1 { font-size: 32px; }
+  .trophy { grid-template-columns: 28px 1fr; }
+  .controls input[type="search"] { min-width: 0; width: 100%; }
+}
