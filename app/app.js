@@ -80,7 +80,7 @@ async function main() {
   const unconfirmed = trophies.filter((t) => !t.confirmed);
   const totalSteps = trophies.reduce((n, t) => n + (t.steps ? t.steps.length : 0), 0);
   const totalCites = trophies.reduce((n, t) => n + (t.steps ? t.steps.reduce((m, s) => m + s.cites.length, 0) : 0), 0);
-  $('citedSteps').textContent = String(totalCites);
+  $('citedSteps').textContent = `${totalSteps} Cited Steps · ${totalCites} Citations`;
   document.title = 'Road to the Platinum — GTA VI Trophy Ledger';
 
   let earned = new Set();
@@ -258,11 +258,20 @@ async function main() {
       + (t.missable ? badge('Missable', 'b-missable') : '')
       + (t.secret ? badge('Secret', 'b-secret') : '')
       + (!t.confirmed ? badge('Unconfirmed at launch', 'b-unconfirmed') : '');
-    const banners = (t.missable ? '<div class="banner banner-missable">⚠ MISSABLE — CHAPTER 1 LOCKOUT: the Chapter 1 meditation spot on Lucia’s balcony disappears when Chapter 1 ends. Do it first.</div>' : '')
+    const banners = (t.missable ? '<div class="banner banner-missable">⚠ MISSABLE — CHAPTER 1 LOCKOUT: Lucia’s balcony meditation spot disappears when Chapter 1 ends — do it first.</div>' : '')
       + (!t.confirmed ? '<div class="banner banner-unconfirmed">UNCONFIRMED AT LAUNCH — NO INVENTED STEPS: the trigger was not verified on launch day (19 Nov 2026), so the steps below state what is known and where to check.</div>' : '');
     const steps = (t.steps || []).map((s) => `<li>${esc(s.text)}${citeChips(s.cites)}</li>`).join('');
     const citedNames = [...new Set((t.steps || []).flatMap((s) => s.cites))];
     const cited = citedNames.map((n) => `<a href="${SOURCE_URLS[n]}" target="_blank" rel="noopener noreferrer">${esc(n)}</a>`).join(' · ');
+    const stepCount = (t.steps || []).length;
+    const citeCount = (t.steps || []).reduce((n, s) => n + s.cites.length, 0);
+    const facts = `<h3 class="insp-h">Unlock Facts</h3>
+      <div class="facts">
+        <div class="fact"><span class="fact-k">Missable</span><span class="fact-v">${t.missable ? 'Yes — Ch. 1 lockout' : 'No'}</span></div>
+        <div class="fact"><span class="fact-k">Stage</span><span class="fact-v">${t.stage === 'platinum' ? 'Final' : `Stage ${t.stage}`}</span></div>
+        <div class="fact"><span class="fact-k">Playthroughs</span><span class="fact-v">1 run</span></div>
+        <div class="fact"><span class="fact-k">Cited Guides</span><span class="fact-v">${stepCount} steps · ${citeCount} citations</span></div>
+      </div>`;
     const actions = t.id === PLATINUM_ID
       ? `<p class="guide-text">Platinum progress: ${earnable.filter((x) => earned.has(x.id)).length} / 54 other trophies earned. This checkbox ticks itself automatically — in both directions — the moment all 54 are complete.</p>`
       : `<div class="insp-actions"><button type="button" class="btn-big" data-act="toggle">${isEarned ? '✓ Earned — tap to undo' : 'Mark as earned'}</button>`
@@ -276,9 +285,11 @@ async function main() {
       ${banners}${actions}
       <h3 class="insp-h">The guide, in our own words</h3>
       <p class="guide-text">${esc(t.guide)}</p>
+      <p class="guide-sources">Guide sources: ${citeChips(citedNames)}</p>
       <h3 class="insp-h">Steps, with a source on every step</h3>
       <ol class="steps">${steps}</ol>
-      <div class="cited-sources"><strong>Cited Sources:</strong> ${cited}</div>`;
+      <div class="cited-sources"><strong>Cited Sources:</strong> ${cited}</div>
+      ${facts}`;
   }
 
   inspectorEl.addEventListener('click', (ev) => {
@@ -311,7 +322,7 @@ async function main() {
     const spoilerOn = spoilerEl.checked;
     const chapters = spoilerOn
       ? 'Chapter 1 — the opening missions and the chapter completion · Chapter 2 — the chapter completion · Chapter 3 — the chapter completion · Chapter 4 — the chapter completion · Finale — the final mission (Gold)'
-      : `Chapter 1 — ${esc(missionOf(T(2)))} (Just Like Paradise), then ${esc(missionOf(T(3)))} · Chapter 2 — ${esc(missionOf(T(4)))} · Chapter 3 — ${esc(missionOf(T(5)))} · Chapter 4 — ${esc(missionOf(T(6)))} · Finale — ${esc(missionOf(T(7)))} (You Gotta Know When to Get Off, Gold)`;
+      : `Chapter 1 — ${esc(missionOf(T(2)))} (${esc(displayName(T(2)))}) &amp; ${esc(displayName(T(3)))} · Chapter 2 — ${esc(displayName(T(4)))} · Chapter 3 — ${esc(displayName(T(5)))} · Chapter 4 — ${esc(displayName(T(6)))} · Finale — ${esc(displayName(T(7)))} (Gold)`;
     const missions = [8, 9, 10, 11, 12, 13].map((id) => chipT(T(id), missionOf(T(id)))).join('');
     const strands = [22, 23, 24, 26, 27].map((id) => chipT(T(id))).join('') + chipT(T(25), '8 strands in total');
     const collect = [[30, 'complete 3 card sets'], [31, 'WAiNK at 100 locations'], [35, 'discover 100 vehicles'], [42, 'explore all of Leonida']]
@@ -331,7 +342,7 @@ async function main() {
         ? { done: earnable.filter((t) => earned.has(t.id)).length, total: 54 }
         : stageProgress(key);
       return `<div class="rm-stage ${cls}">
-        <div class="rm-head"><strong>${title}</strong><span class="rm-prog">${p.done} / ${p.total} earned</span><button type="button" class="rm-btn" data-stage="${key}">Show these in the Tracker →</button></div>
+        <div class="rm-head"><strong>${title}</strong><span class="rm-prog">${p.done} / ${p.total} earned</span><button type="button" class="rm-btn" data-stage="${key}">Show these in the Tracker <svg class="rm-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h12.2l-4.6-4.6L13 5l7 7-7 7-1.4-1.4 4.6-4.6H4z"/></svg></button></div>
         <div class="rm-bar"><div class="rm-fill" style="width:${p.total ? Math.round((p.done / p.total) * 100) : 0}%"></div></div>
         <div class="rm-body">${body}</div>
       </div>`;
