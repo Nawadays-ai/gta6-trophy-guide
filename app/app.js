@@ -29,25 +29,21 @@ const STAGES = [
     title: 'Stage 1 — FIRST, before finishing Chapter 1: the missable checkpoint',
     text: 'Before you complete Chapter 1, meditate at the Chapter 1 spot on Lucia’s balcony. That spot is gone once Chapter 1 ends, and Positive Mental Attitude needs every meditation spot — this warning comes first so the trophy cannot be lost.',
     match: (t) => t.missable,
-    filter: { kind: 'missable' },
   },
   {
     title: 'Stage 2 — Play the story',
     text: 'Chapters 1–4, then the finale. The 20 story trophies unlock as their missions and chapters complete, including the Gold for the final mission (You Gotta Know When to Get Off). The other Gold, A Long Road, is for 100% completion of the whole game, so it only finishes later, during Stage 4 cleanup — it is not a story-only trophy. Nothing here needs a special setup — just play, and keep the Stage 1 checkpoint in mind at the start.',
     match: (t) => t.kind === 'story' && t.id !== PLATINUM_ID,
-    filter: { kind: 'story' },
   },
   {
     title: 'Stage 3 — Collectibles and exploration',
     text: 'Card sets, WAiNK spots, vehicles discovered and full map coverage (the missable meditation trophy is counted in Stage 1). These are long counters, so start them during the story and finish them in free roam after the finale.',
     match: (t) => t.kind === 'collectible' && !t.missable,
-    filter: { kind: 'collectible' },
   },
   {
     title: 'Stage 4 — Activities, challenges and money',
     text: 'Stranger strands, races, drone races, the shooting range, stunts, robberies, challenges and the money trophies (laundering, spending, garages). Do the 5 trophies badged UNCONFIRMED AT LAUNCH last, once the community verifies how they trigger.',
     match: (t) => t.kind === 'activity',
-    filter: { kind: 'activity' },
   },
 ];
 
@@ -100,15 +96,21 @@ function clearStageFilter() {
   kindEl.dispatchEvent(new Event('change'));
 }
 
-function applyStageFilter(key, filter) {
+function applyStageFilter(key) {
   if (activeStage === key) {
     clearStageFilter();
     return;
   }
   activeStage = key;
   applyingStageFilter = true;
-  kindEl.value = filter.kind ?? 'all';
-  gradeEl.value = filter.grade ?? 'all';
+  // The stage filter filters by the stage's own match predicate (applied in
+  // trophyMatches — the exact predicate behind the stage's progress count),
+  // not by the Kind dropdown: the dropdowns step aside to "All kinds" /
+  // "All grades" so the stage takes clear precedence while it is active.
+  // Manually changing the Kind dropdown afterwards clears the stage filter
+  // (see the control listeners in main()).
+  kindEl.value = 'all';
+  gradeEl.value = 'all';
   applyingStageFilter = false;
   setStageBanner();
   kindEl.dispatchEvent(new Event('change'));
@@ -195,10 +197,19 @@ function trophyMatches(t) {
     if (spoilerHidden(t)) return false;
     if (!(t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || t.guide.toLowerCase().includes(q))) return false;
   }
-  const kind = kindEl.value;
-  if (kind === 'missable' && !t.missable) return false;
-  if (kind === 'online') return false;
-  if (kind !== 'all' && kind !== 'missable' && kind !== 'online' && t.kind !== kind) return false;
+  if (activeStage !== null) {
+    // A roadmap stage filter is active: it takes precedence over the Kind
+    // dropdown. A trophy shows exactly when the stage's own match predicate
+    // accepts it (the Platinum row matches only the Platinum trophy itself),
+    // so the filtered list always agrees with the stage's progress count.
+    const inStage = activeStage === 'platinum' ? t.id === PLATINUM_ID : STAGES[activeStage].match(t);
+    if (!inStage) return false;
+  } else {
+    const kind = kindEl.value;
+    if (kind === 'missable' && !t.missable) return false;
+    if (kind === 'online') return false;
+    if (kind !== 'all' && kind !== 'missable' && kind !== 'online' && t.kind !== kind) return false;
+  }
   if (gradeEl.value !== 'all' && t.grade !== gradeEl.value) return false;
   if (hideEarnedEl.checked && earned.has(t.id)) return false;
   return true;
@@ -254,7 +265,7 @@ function renderRoadmap() {
     text.className = 'stage-text';
     text.textContent = stage.text;
     btn.append(head, bar, text);
-    btn.addEventListener('click', () => applyStageFilter(i, stage.filter));
+    btn.addEventListener('click', () => applyStageFilter(i));
     li.append(btn);
     ol.append(li);
   });
@@ -284,7 +295,7 @@ function renderRoadmap() {
   text.className = 'stage-text';
   text.textContent = 'Vice Got a Price! is not earned by a task of its own: it unlocks automatically the moment the other 54 trophies are all earned (54 + 1 Platinum = 55), and this tracker ticks it for you.';
   btn.append(head, bar, text);
-  btn.addEventListener('click', () => applyStageFilter('platinum', { grade: 'platinum' }));
+  btn.addEventListener('click', () => applyStageFilter('platinum'));
   li.append(btn);
   ol.append(li);
   document.getElementById('missableAlertText').textContent = MISSABLE_TEXT;
