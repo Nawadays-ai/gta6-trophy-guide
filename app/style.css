@@ -28,18 +28,21 @@ body {
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
 .sticky-progress {
-  position: sticky; top: 0; z-index: 10;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
   display: flex; gap: 12px; align-items: center;
   background: var(--night); color: #fff; font-weight: bold; font-size: 14px;
   padding: 8px 20px; border-bottom: 2px solid var(--pink);
+  opacity: 0; transform: translateY(-110%); pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
 }
+.sticky-progress.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .sticky-bar { flex: 1; background: #3a2d63; height: 10px; border-radius: 5px; overflow: hidden; }
 .sticky-fill { height: 100%; background: var(--pink); width: 0%; }
 .masthead {
   background: var(--night-2);
   color: #fff;
   border-bottom: 5px solid var(--pink);
-  padding: 28px 20px 22px;
+  padding: 20px 20px 14px;
 }
 .masthead-inner { max-width: 1080px; margin: 0 auto; }
 .kicker {
@@ -47,10 +50,10 @@ body {
   text-transform: uppercase; font-size: 13px; font-weight: bold;
 }
 .masthead h1 {
-  margin: 0 0 6px; font-size: 44px; line-height: 1.05; letter-spacing: -0.5px;
+  margin: 0 0 6px; font-size: 40px; line-height: 1.05; letter-spacing: -0.5px;
 }
-.masthead h1::after { content: ""; display: block; width: 120px; height: 6px; background: var(--orange); margin-top: 10px; }
-.subtitle { margin: 0 0 16px; color: #e8ddf5; max-width: 760px; font-size: 17px; }
+.masthead h1::after { content: ""; display: block; width: 120px; height: 6px; background: var(--orange); margin-top: 8px; }
+.subtitle { margin: 0 0 10px; color: #e8ddf5; max-width: 760px; font-size: 16px; }
 .progress-line {
   display: flex; justify-content: space-between; font-weight: bold;
   font-size: 15px; margin-bottom: 6px;
@@ -60,7 +63,7 @@ body {
   height: 100%; background: var(--pink); width: 0%;
   transition: width 0.3s ease;
 }
-main { max-width: 1080px; margin: 0 auto; padding: 20px 20px 8px; }
+main { max-width: 1080px; margin: 0 auto; padding: 14px 20px 8px; }
 .panel {
   background: var(--panel); border: 1px solid var(--line);
   border-radius: 12px; padding: 18px 20px; margin-bottom: 18px;
@@ -134,10 +137,18 @@ main { max-width: 1080px; margin: 0 auto; padding: 20px 20px 8px; }
 .trophy summary:hover { text-decoration: underline; }
 .guide-text { margin: 8px 0 6px; }
 .guide-sources { margin: 0; color: var(--muted); font-size: 13px; }
-.guide-sources a { color: var(--teal); }
+.guide-sources a {
+  color: #c4006b; font-weight: bold;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;
+}
+.guide-sources a:hover { color: var(--orange); text-decoration-thickness: 2px; }
 .hidden-name { color: var(--muted); font-style: italic; }
 .source-links { margin: 8px 0; padding-left: 20px; }
-.source-links a { color: var(--teal); font-weight: bold; }
+.source-links a {
+  color: #c4006b; font-weight: bold;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;
+}
+.source-links a:hover { color: var(--orange); text-decoration-thickness: 2px; }
 .fineprint { color: var(--muted); font-size: 13px; }
 footer {
   max-width: 1080px; margin: 0 auto; padding: 6px 20px 26px;
@@ -148,3 +159,108 @@ footer {
   .trophy { grid-template-columns: 28px 1fr; }
   .controls input[type="search"] { min-width: 0; width: 100%; }
 }
+
+/* --- Part B additions: hero dashboard, interactive roadmap, spoiler lock --- */
+html { scroll-behavior: smooth; }
+section, .panel, .trophy, #listTitle { scroll-margin-top: 64px; }
+.masthead {
+  position: relative; overflow: hidden;
+  background: linear-gradient(180deg, #17112e 0%, #3b1d5e 42%, #8a2a6e 68%, #ff5e62 86%, #ff7a1a 100%);
+}
+.masthead .sun {
+  position: absolute; right: 6%; top: 26px; width: 120px; height: 120px; border-radius: 50%;
+  background: radial-gradient(circle, #ffd76e 0%, #ff9a3d 55%, rgba(255,122,26,0) 72%);
+  opacity: 0.9; pointer-events: none;
+}
+.masthead-inner { position: relative; }
+.jump-link { color: #ffd76e; font-weight: bold; }
+.dashboard { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.dash-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(23,17,46,0.72); border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 20px; padding: 5px 12px 5px 8px; font-size: 13px; color: #fff;
+}
+.dash-chip .trophy-icon { width: 18px; height: 18px; flex: none; }
+.dash-chip.platinum .trophy-icon { fill: #c9b3ff; }
+.dash-chip.gold .trophy-icon { fill: #ffd76e; }
+.dash-chip.silver .trophy-icon { fill: #d7dee8; }
+.dash-chip.bronze .trophy-icon { fill: #e2a06a; }
+.dash-chip.missable-chip { border-color: #ff8fa3; color: #ffd7de; font-weight: bold; }
+.dash-chip.plat-progress { border-color: #ffd76e; }
+.dash-label { font-weight: bold; letter-spacing: 0.03em; }
+.dash-count { font-variant-numeric: tabular-nums; }
+.controls .checks-row { align-items: center; }
+.controls .check-label { flex-direction: row; align-items: center; gap: 6px; padding: 6px 0; }
+.btn-secondary {
+  background: #fff !important; color: var(--night-2) !important; border-color: var(--line) !important;
+}
+.btn-secondary:hover { border-color: var(--pink) !important; color: var(--pink) !important; }
+.import-btn {
+  font: inherit; font-weight: bold; cursor: pointer; display: inline-block;
+  padding: 9px 14px; border-radius: 8px; border: 2px solid var(--night-2);
+  background: var(--night-2); color: #fff;
+}
+.import-btn:hover { background: var(--pink); border-color: var(--pink); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.btn-danger { background: #fff !important; color: #b01e32 !important; border-color: #d21f3c !important; }
+.btn-danger:hover { background: #ffe9e9 !important; border-color: #d21f3c !important; }
+.btn-danger.armed { background: #d21f3c !important; color: #fff !important; }
+.import-status { margin: 6px 0 0; font-size: 14px; font-weight: bold; min-height: 1.2em; }
+.import-status.ok { color: var(--teal); }
+.import-status.error { color: #b01e32; }
+.roadmap { list-style: none; padding-left: 0; display: grid; gap: 10px; }
+.roadmap-stage { margin: 0; }
+.stage-btn {
+  display: block; width: 100%; text-align: left; font: inherit; cursor: pointer;
+  background: #fff; border: 2px solid var(--line); border-radius: 10px; padding: 10px 14px; color: var(--ink);
+}
+.stage-btn:hover { border-color: var(--pink); }
+.stage-btn.stage-first { border-color: #d21f3c; background: #fff5f5; }
+.stage-btn.stage-platinum { border-color: var(--gold); background: #fffaf0; }
+.stage-btn.stage-active { outline: 3px solid var(--pink); outline-offset: 1px; }
+.stage-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.stage-head strong { color: var(--night-2); }
+.stage-progress { font-weight: bold; color: var(--teal); font-size: 13px; white-space: nowrap; }
+.stage-bar { display: block; height: 8px; background: #efe6d8; border-radius: 4px; overflow: hidden; margin: 6px 0; }
+.stage-fill { display: block; height: 100%; background: var(--pink); }
+.stage-text { display: block; color: #4a3d5c; font-size: 14px; }
+.trophy.locked { border-style: dashed; background: #f3eee6; }
+.plat-progress-line { margin: 4px 0 0; font-weight: bold; color: var(--night-2); }
+.reveal-btn {
+  margin-top: 8px; font: inherit; font-size: 13px; font-weight: bold; cursor: pointer;
+  padding: 6px 12px; border-radius: 8px; border: 2px solid var(--night-2);
+  background: #fff; color: var(--night-2);
+}
+.reveal-btn:hover { background: var(--night-2); color: #fff; }
+/* Roadmap panel compaction so the whole panel + alert fit one 800px viewport */
+#roadmapPanel { padding: 10px 20px; }
+#roadmapPanel .panel-note { margin-bottom: 6px; font-size: 14px; }
+#roadmapPanel .roadmap { gap: 6px; }
+#roadmapPanel .stage-btn { padding: 6px 14px; }
+#roadmapPanel .stage-bar { margin: 3px 0; }
+#roadmapPanel .missable-alert { margin-top: 8px; padding: 6px 12px; }
+#roadmapPanel .stage-text { line-height: 1.26; font-size: 13.5px; }
+#roadmapPanel .missable-alert { line-height: 1.28; font-size: 13.5px; }
+#roadmapPanel h2 { margin-bottom: 4px; }
+
+/* --- Final polish: slimmer control panel (~70px tighter) + stage filter banner --- */
+.controls { padding: 10px 14px 8px; }
+.controls .control-row { gap: 10px; margin-bottom: 6px; }
+.controls label { font-size: 13px; gap: 2px; }
+.controls input[type="search"], .controls select { padding: 5px 8px; min-width: 140px; }
+.controls input[type="search"] { min-width: 210px; }
+.controls button, .import-btn { padding: 6px 10px; }
+.controls .check-label { padding: 2px 0; }
+.controls .import-status { margin: 2px 0 0; min-height: 0; font-size: 13px; }
+.controls .import-status:empty { display: none; }
+.controls-note { margin: 2px 0 0; font-size: 12px; line-height: 1.35; }
+.filter-banner {
+  margin: 0 0 10px; padding: 7px 12px; font-size: 14px; font-weight: bold;
+  background: #ffe3f0; border: 1px solid var(--pink); border-radius: 8px; color: var(--night-2);
+}
+.filter-banner-clear {
+  font: inherit; font-size: 13px; font-weight: bold; cursor: pointer; margin-left: 8px;
+  padding: 2px 10px; border-radius: 12px; border: 2px solid var(--night-2);
+  background: #fff; color: var(--night-2);
+}
+.filter-banner-clear:hover { background: var(--night-2); color: #fff; }

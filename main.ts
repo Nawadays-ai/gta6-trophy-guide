@@ -12,13 +12,23 @@
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 // Serve the guide locally with `node serve.ts`, then open http://localhost:8080.
 
-import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildDossier } from './vendor/makefun-frontend.ts';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+
+// Data identity check: app/data/trophies.js is the file:// loader copy of
+// app/data/trophies.json (the canonical file). Refuse to hand in if the two
+// have drifted apart, so the guide can never show different data by protocol.
+const jsonText = readFileSync(join(here, 'app', 'data', 'trophies.json'), 'utf8').trim();
+const jsText = readFileSync(join(here, 'app', 'data', 'trophies.js'), 'utf8');
+const marker = 'window.TROPHIES_DATA = ';
+const start = jsText.indexOf(marker);
+const embedded = start === -1 ? '' : jsText.slice(start + marker.length).trim().replace(/;$/, '');
+if (embedded !== jsonText) throw new Error('app/data/trophies.js is out of sync with app/data/trophies.json');
 
 mkdirSync(out, { recursive: true });
 cpSync(join(here, 'app'), join(out, 'app'), { recursive: true });

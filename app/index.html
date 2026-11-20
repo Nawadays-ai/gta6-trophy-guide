@@ -13,25 +13,43 @@
   <span id="stickyPointsText">0 / 1,350 points</span>
 </div>
 <header class="masthead">
+  <div class="sun" aria-hidden="true"></div>
   <div class="masthead-inner">
-    <p class="kicker">Grand Theft Auto VI &middot; PlayStation 5</p>
+    <p class="kicker">Grand Theft Auto VI &middot; PlayStation 5 &middot; Leonida</p>
     <h1>Road to the Platinum</h1>
-    <p class="subtitle">Every one of the 55 trophies, with a guide in our own words, a checklist that remembers your progress, and a roadmap to <strong>Vice Got a Price!</strong></p>
+    <p class="subtitle">Every one of the 55 trophies, with a guide in our own words, a checklist that remembers your progress, and a roadmap to <strong>Vice Got a Price!</strong> — the Platinum that unlocks automatically once the other 54 are earned. <a class="jump-link" href="#roadmapPanel">Jump to the roadmap ↓</a></p>
     <div class="progress-wrap" role="status" aria-live="polite">
       <div class="progress-line"><span id="progressText">0 of 55 earned</span><span id="progressPoints">0 / 1,350 points</span></div>
       <div class="progress-bar"><div id="progressFill" class="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="dashboard" aria-label="Progress by grade">
+      <div class="dash-chip platinum">
+        <svg class="trophy-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v2h3v3a5 5 0 0 1-5 5h-.42A6 6 0 0 1 13 15.92V18h3v3H8v-3h3v-2.08A6 6 0 0 1 7.42 13H7a5 5 0 0 1-5-5V5h3V3zm-1 4v1a3 3 0 0 0 3 3V7H4zm16 0h-3v4a3 3 0 0 0 3-3V7z"/></svg>
+        <span class="dash-label">Platinum</span><span class="dash-count" id="dashPlatinum">0 / 1</span>
+      </div>
+      <div class="dash-chip gold">
+        <svg class="trophy-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v2h3v3a5 5 0 0 1-5 5h-.42A6 6 0 0 1 13 15.92V18h3v3H8v-3h3v-2.08A6 6 0 0 1 7.42 13H7a5 5 0 0 1-5-5V5h3V3zm-1 4v1a3 3 0 0 0 3 3V7H4zm16 0h-3v4a3 3 0 0 0 3-3V7z"/></svg>
+        <span class="dash-label">Gold</span><span class="dash-count" id="dashGold">0 / 2</span>
+      </div>
+      <div class="dash-chip silver">
+        <svg class="trophy-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v2h3v3a5 5 0 0 1-5 5h-.42A6 6 0 0 1 13 15.92V18h3v3H8v-3h3v-2.08A6 6 0 0 1 7.42 13H7a5 5 0 0 1-5-5V5h3V3zm-1 4v1a3 3 0 0 0 3 3V7H4zm16 0h-3v4a3 3 0 0 0 3-3V7z"/></svg>
+        <span class="dash-label">Silver</span><span class="dash-count" id="dashSilver">0 / 6</span>
+      </div>
+      <div class="dash-chip bronze">
+        <svg class="trophy-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v2h3v3a5 5 0 0 1-5 5h-.42A6 6 0 0 1 13 15.92V18h3v3H8v-3h3v-2.08A6 6 0 0 1 7.42 13H7a5 5 0 0 1-5-5V5h3V3zm-1 4v1a3 3 0 0 0 3 3V7H4zm16 0h-3v4a3 3 0 0 0 3-3V7z"/></svg>
+        <span class="dash-label">Bronze</span><span class="dash-count" id="dashBronze">0 / 46</span>
+      </div>
+      <div class="dash-chip missable-chip">
+        <span class="dash-label">⚠ Missable</span><span class="dash-count" id="dashMissable">0 / 1 earned</span>
+      </div>
+      <div class="dash-chip plat-progress">
+        <span class="dash-label">Platinum progress</span><span class="dash-count" id="dashPlatProgress">0 / 54</span>
+      </div>
     </div>
   </div>
 </header>
 
 <main>
-  <section class="panel" id="roadmapPanel" aria-labelledby="roadmapTitle">
-    <h2 id="roadmapTitle">Roadmap to the platinum</h2>
-    <p class="panel-note">Built from the official trophy descriptions. Story trophies unlock in order as you play; only one trophy can be missed.</p>
-    <ol class="roadmap" id="roadmap"></ol>
-    <p class="missable-alert"><strong>Missable warning:</strong> <span id="missableAlertText"></span></p>
-  </section>
-
   <section class="panel controls" aria-label="Tracker controls">
     <div class="control-row">
       <label class="search-label">Search <input id="search" type="search" placeholder="Trophy name or keyword…" autocomplete="off"></label>
@@ -54,41 +72,61 @@
           <option value="bronze">Bronze</option>
         </select>
       </label>
+      <label>Sort
+        <select id="sort">
+          <option value="order">PlayStation Order</option>
+          <option value="grade">Grade</option>
+          <option value="unearned">Unearned First</option>
+        </select>
+      </label>
+    </div>
+    <div class="control-row checks-row">
       <label class="check-label"><input id="spoiler" type="checkbox"> Hide story spoilers</label>
       <label class="check-label"><input id="hideEarned" type="checkbox"> Hide earned</label>
-    </div>
-    <div class="control-row">
+      <button id="expandBtn" type="button" class="btn-secondary">Expand all guides</button>
+      <button id="collapseBtn" type="button" class="btn-secondary">Collapse all</button>
       <button id="exportBtn" type="button">Export progress</button>
-      <label class="import-label">Import progress <input id="importFile" type="file" accept="application/json,.json"></label>
-      <button id="resetBtn" type="button">Reset progress</button>
+      <label class="import-btn" for="importFile">Import JSON</label>
+      <input id="importFile" class="visually-hidden" type="file" accept="application/json,.json">
+      <button id="resetBtn" type="button" class="btn-danger">Reset progress</button>
       <span id="filterCount" class="filter-count" aria-live="polite"></span>
     </div>
-    <p class="controls-note">Progress is saved in this browser (localStorage). Export downloads a file you can import back on any computer. Spoiler mode hides the names and descriptions of secret story trophies until you earn them.</p>
+    <p id="importStatus" class="import-status" aria-live="polite"></p>
+    <p class="controls-note">Progress is saved in this browser (localStorage). Export downloads a file you can import back on any computer. Spoiler mode fully locks secret trophies — name, description, guide, sources and details stay hidden until you earn the trophy or reveal that one card.</p>
   </section>
 
   <section aria-labelledby="listTitle">
     <h2 id="listTitle" class="sr-only">Trophy checklist</h2>
+    <p id="filterBanner" class="filter-banner" hidden>Filtered by: <span id="filterBannerText"></span> <button id="filterBannerClear" type="button" class="filter-banner-clear">Clear</button></p>
     <p id="emptyState" class="empty-state" hidden></p>
     <ul id="trophyList" class="trophy-list"></ul>
   </section>
 
   <section class="panel" aria-labelledby="sourcesTitle">
     <h2 id="sourcesTitle">Sources &amp; how this guide was written</h2>
-    <p>Trophy names, descriptions and grades are as PlayStation publishes them, from the official list recorded by Exophase. Every guide on this page is written in our own words for this guide; where a method was not yet confirmed at launch, the trophy says so honestly instead of guessing. Methods draw on:</p>
+    <p>Trophy names, descriptions and grades are as PlayStation publishes them, from the official list recorded by Exophase. Every guide on this page is written in our own words for this guide; where a method was not yet confirmed at launch, the trophy is badged <strong>UNCONFIRMED AT LAUNCH</strong> (5 trophies) instead of guessing. There are no online trophies in this list — all 55 are earned in single-player, so the Online kind filter is empty by design. Methods draw on:</p>
     <ul class="source-links">
-      <li><a href="https://www.exophase.com/game/grand-theft-auto-vi-psn/trophies/">Exophase — GTA VI trophy list</a> (official names, descriptions, grades)</li>
-      <li><a href="https://www.powerpyx.com/grand-theft-auto-vi-gta-6-trophy-guide-roadmap/">PowerPyx — GTA 6 Trophy Guide &amp; Roadmap</a></li>
-      <li><a href="https://www.pushsquare.com/guides/gta-6-trophy-guide-all-trophies-and-how-to-get-the-platinum">Push Square — GTA 6 Trophy Guide</a></li>
-      <li><a href="https://psnprofiles.com/trophies/grand-theft-auto-vi">PSNProfiles — GTA VI trophy list</a></li>
+      <li><a href="https://www.exophase.com/game/grand-theft-auto-vi-psn/trophies/" target="_blank" rel="noopener noreferrer">Exophase — GTA VI trophy list</a> (official names, descriptions, grades)</li>
+      <li><a href="https://www.powerpyx.com/grand-theft-auto-vi-gta-6-trophy-guide-roadmap/" target="_blank" rel="noopener noreferrer">PowerPyx — GTA 6 Trophy Guide &amp; Roadmap</a></li>
+      <li><a href="https://www.pushsquare.com/guides/gta-6-trophy-guide-all-trophies-and-how-to-get-the-platinum" target="_blank" rel="noopener noreferrer">Push Square — GTA 6 Trophy Guide</a></li>
+      <li><a href="https://psnprofiles.com/trophies/grand-theft-auto-vi" target="_blank" rel="noopener noreferrer">PSNProfiles — GTA VI trophy list</a></li>
     </ul>
-    <p class="fineprint">An unofficial fan guide. Not affiliated with Rockstar Games or PlayStation. No Rockstar logo, artwork or game screenshots are used here; the design is our own. The guide works fully offline: it loads only its own files and makes no network request.</p>
+    <p class="fineprint">An unofficial fan guide. Not affiliated with Rockstar Games or PlayStation. No Rockstar logo, artwork or game screenshots are used here; the design is our own. The guide works fully offline: it loads only its own files and makes no network request when the page loads — the source links above only open if you click them.</p>
   </section>
+  <section class="panel" id="roadmapPanel" aria-labelledby="roadmapTitle">
+    <h2 id="roadmapTitle">Roadmap to the platinum</h2>
+    <p class="panel-note">54 earnable trophies, then the Platinum unlocks automatically — 55 in total. Click a stage to filter the checklist to that stage; click it again to clear the filter. Start with the missable checkpoint: it must be done <strong>before</strong> Chapter 1 is completed.</p>
+    <ol class="roadmap" id="roadmap"></ol>
+    <p class="missable-alert"><strong>⚠ Missable Alert:</strong> <span id="missableAlertText"></span></p>
+  </section>
+
 </main>
 
 <footer>
   <p>GTA VI Trophy Guide &amp; Tracker &middot; 55 trophies &middot; 1,350 points &middot; Built as an offline static web app.</p>
 </footer>
 
-<script type="module" src="app.js"></script>
+<script src="data/trophies.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
