@@ -256,7 +256,7 @@ async function main() {
           <div class="shield-box"><strong>${openCount}</strong><span>Earned / Revealed</span></div>
           <div class="shield-box"><strong>${secretTotal - openCount}</strong><span>Locked &amp; Search-Blocked</span></div>
         </div>
-        <p class="shield-strip">Zero DOM Leakage · Search Shield Active · Per-Card Reveal Ready</p>
+        <p class="shield-strip">Zero DOM Leakage · Search Shield Active · Per-Card Reveal</p>
         <button type="button" class="btn-big" data-act="reveal">Reveal this trophy</button>
       </div>`;
       return;
@@ -351,7 +351,7 @@ async function main() {
         ? { done: earnable.filter((t) => earned.has(t.id)).length, total: 54 }
         : stageProgress(key);
       return `<div class="rm-stage ${cls}">
-        <div class="rm-head"><span class="rm-badge">${badgeNo}</span><strong>${title}</strong><span class="rm-prog">${p.done} / ${p.total} earned</span><button type="button" class="rm-btn" data-stage="${key}">Show these in the Tracker <svg class="rm-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h12.2l-4.6-4.6L13 5l7 7-7 7-1.4-1.4 4.6-4.6H4z"/></svg></button></div>
+        <div class="rm-head"><span class="rm-badge">${badgeNo}</span><strong>${title}</strong><span class="rm-prog">${p.done} / ${p.total} earned</span><button type="button" class="rm-btn" data-stage="${key}">Show in Tracker <svg class="rm-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h12.2l-4.6-4.6L13 5l7 7-7 7-1.4-1.4 4.6-4.6H4z"/></svg></button></div>
         <div class="rm-bar"><div class="rm-fill" style="width:${p.total ? Math.round((p.done / p.total) * 100) : 0}%"></div></div>
         <div class="rm-body">${body}</div>
       </div>`;
