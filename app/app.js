@@ -12,21 +12,16 @@ const PLATINUM_ID = 1;
 const MISSABLE_TEXT =
   'Positive Mental Attitude is the only missable trophy: meditate at every spot across Leonida, and do the Chapter 1 spot (Lucia’s balcony) BEFORE you complete Chapter 1 — it disappears once that chapter ends.';
 
-// The four sources every step citation points at. The app itself loads
-// nothing from the network: these anchors only open if a reader clicks them.
-const SOURCE_URLS = {
-  Exophase: 'https://www.exophase.com/game/grand-theft-auto-vi-psn/trophies/',
-  PowerPyx: 'https://www.powerpyx.com/grand-theft-auto-vi-gta-6-trophy-guide-roadmap/',
-  'Push Square': 'https://www.pushsquare.com/guides/gta-6-trophy-guide-all-trophies-and-how-to-get-the-platinum',
-  PSNProfiles: 'https://psnprofiles.com/trophies/grand-theft-auto-vi',
-};
-const SOURCE_BLURB = {
-  Exophase: 'the official trophy list as PlayStation publishes it — names, descriptions, grades and counts',
-  PowerPyx: 'trophy guide and roadmap — methods, order and cleanup strategy',
-  'Push Square': 'trophy guide — methods and explanations in plain language',
-  PSNProfiles: 'trophy list cross-check — grades, rarity and ordering',
-};
-const SOURCE_ORDER = ['Exophase', 'PowerPyx', 'Push Square', 'PSNProfiles'];
+// The four sources every step citation points at live in the data file's
+// sources_catalog, keyed by short codes (exo, pyx, psq, psn); step citations
+// carry the keys and the app resolves them to labels and links at render
+// time. The app itself loads nothing from the network: these anchors only
+// open if a reader clicks them.
+const SOURCE_ORDER = ['exo', 'pyx', 'psq', 'psn'];
+let CAT = {};
+const srcLabel = (k) => (CAT[k] ? CAT[k].label : k);
+const srcUrl = (k) => (CAT[k] ? CAT[k].url : '#');
+const srcBlurb = (k) => (CAT[k] ? CAT[k].blurb : '');
 
 const CUP = 'M5 3h14v2h3v3a5 5 0 0 1-5 5h-.42A6 6 0 0 1 13 15.92V18h3v3H8v-3h3v-2.08A6 6 0 0 1 7.42 13H7a5 5 0 0 1-5-5V5h3V3zm-1 4v1a3 3 0 0 0 3 3V7H4zm16 0h-3v4a3 3 0 0 0 3-3V7z';
 const LOCK = 'M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3H9z';
@@ -56,7 +51,7 @@ function cupIcon(grade, big) {
   return `<svg class="trophy-icon" viewBox="0 0 24 24" aria-hidden="true" ${big ? 'width="34" height="34"' : ''}><path class="gi-${grade}" d="${CUP}"/></svg>`;
 }
 function badge(text, cls) { return `<span class="badge ${cls}">${esc(text)}</span>`; }
-function citeChips(cites) { return cites.map((c) => `<span class="cite">[${esc(c)}]</span>`).join(''); }
+function citeChips(cites) { return cites.map((c) => `<span class="cite">[${esc(srcLabel(c))}]</span>`).join(''); }
 
 // This is a classic script (not an ES module) on purpose: module scripts are
 // blocked by CORS under file:// in Chrome, classic scripts are not.
@@ -75,6 +70,7 @@ async function main() {
     throw new Error('trophy data unavailable');
   }
   const trophies = doc.trophies;
+  CAT = doc.sources_catalog || {};
   const byId = new Map(trophies.map((t) => [t.id, t]));
   const earnable = trophies.filter((t) => t.id !== PLATINUM_ID);
   const unconfirmed = trophies.filter((t) => !t.confirmed);
@@ -134,6 +130,11 @@ async function main() {
     const arr = [...list];
     const v = sortEl.value;
     if (v === 'order') arr.sort((a, b) => a.id - b.id);
+    else if (v === 'priority') arr.sort((a, b) =>
+      Number(b.missable) - Number(a.missable)
+      || (a.id === PLATINUM_ID ? 99 : GRADE_RANK[a.grade]) - (b.id === PLATINUM_ID ? 99 : GRADE_RANK[b.grade])
+      || Number(earned.has(a.id)) - Number(earned.has(b.id))
+      || a.id - b.id);
     else if (v === 'grade') arr.sort((a, b) => GRADE_RANK[a.grade] - GRADE_RANK[b.grade] || a.id - b.id);
     else if (v === 'unearned') arr.sort((a, b) => Number(earned.has(a.id)) - Number(earned.has(b.id)) || a.id - b.id);
     else arr.sort((a, b) => STAGE_ORDER[a.stage] - STAGE_ORDER[b.stage] || a.id - b.id);
@@ -200,7 +201,7 @@ async function main() {
   }
 
   function ledgerHtml() {
-    const srcItems = SOURCE_ORDER.map((n) => `<li><a href="${SOURCE_URLS[n]}" target="_blank" rel="noopener noreferrer">${n}</a> — ${esc(SOURCE_BLURB[n])}</li>`).join('');
+    const srcItems = SOURCE_ORDER.map((n) => `<li><a href="${srcUrl(n)}" target="_blank" rel="noopener noreferrer">${esc(srcLabel(n))}</a> — ${esc(srcBlurb(n))}</li>`).join('');
     const unc = spoilerEl.checked
       ? '<p>5 trophies in this list are badged UNCONFIRMED AT LAUNCH; their names stay locked while spoilers are hidden.</p>'
       : `<ul>${unconfirmed.map((t) => `<li>${esc(t.name)}</li>`).join('')}</ul>`;
@@ -243,11 +244,19 @@ async function main() {
       return;
     }
     if (spoilerHidden(t)) {
+      const secretTotal = trophies.filter((x) => x.secret).length;
+      const openCount = trophies.filter((x) => x.secret && (earned.has(x.id) || revealed.has(x.id))).length;
       inspectorEl.innerHTML = `<div class="shield">
         <svg class="lock-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="${LOCK}"/></svg>
         <h3>Spoiler Shield — Hidden Trophy</h3>
         <p>This trophy is secret on PlayStation and “Hide Story Spoilers” is on, so its name, description, steps, sources and metadata are completely locked — they are not in this panel, not in the checklist, and Search returns 0 results for it.</p>
         <p>This list also holds 5 trophies badged UNCONFIRMED AT LAUNCH; locked ones stay locked the same way until they are earned or revealed.</p>
+        <div class="shield-grid">
+          <div class="shield-box"><strong>${secretTotal}</strong><span>Secret Total</span></div>
+          <div class="shield-box"><strong>${openCount}</strong><span>Earned / Revealed</span></div>
+          <div class="shield-box"><strong>${secretTotal - openCount}</strong><span>Locked &amp; Search-Blocked</span></div>
+        </div>
+        <p class="shield-strip">Zero DOM Leakage · Search Shield Active · Per-Card Reveal Ready</p>
         <button type="button" class="btn-big" data-act="reveal">Reveal this trophy</button>
       </div>`;
       return;
@@ -262,13 +271,13 @@ async function main() {
       + (!t.confirmed ? '<div class="banner banner-unconfirmed">UNCONFIRMED AT LAUNCH — NO INVENTED STEPS: the trigger was not verified on launch day (19 Nov 2026), so the steps below state what is known and where to check.</div>' : '');
     const steps = (t.steps || []).map((s) => `<li>${esc(s.text)}${citeChips(s.cites)}</li>`).join('');
     const citedNames = [...new Set((t.steps || []).flatMap((s) => s.cites))];
-    const cited = citedNames.map((n) => `<a href="${SOURCE_URLS[n]}" target="_blank" rel="noopener noreferrer">${esc(n)}</a>`).join(' · ');
+    const cited = citedNames.map((n) => `<a href="${srcUrl(n)}" target="_blank" rel="noopener noreferrer">${esc(srcLabel(n))}</a>`).join(' · ');
     const stepCount = (t.steps || []).length;
     const citeCount = (t.steps || []).reduce((n, s) => n + s.cites.length, 0);
     const facts = `<h3 class="insp-h">Unlock Facts</h3>
       <div class="facts">
         <div class="fact"><span class="fact-k">Missable</span><span class="fact-v">${t.missable ? 'Yes — Ch. 1 lockout' : 'No'}</span></div>
-        <div class="fact"><span class="fact-k">Stage</span><span class="fact-v">${t.stage === 'platinum' ? 'Final' : `Stage ${t.stage}`}</span></div>
+        <div class="fact"><span class="fact-k">Stage</span><span class="fact-v">${t.stageLabel ? esc(t.stageLabel) : (t.stage === 'platinum' ? 'Final' : `Stage ${t.stage}`)}</span></div>
         <div class="fact"><span class="fact-k">Playthroughs</span><span class="fact-v">1 run</span></div>
         <div class="fact"><span class="fact-k">Cited Guides</span><span class="fact-v">${stepCount} steps · ${citeCount} citations</span></div>
       </div>`;
@@ -337,30 +346,31 @@ async function main() {
     const s4groups = groups.map(([label, items]) =>
       `<p><span class="grp">${label}:</span> ${items.map(([id, s]) => chipT(T(id), s)).join('')}</p>`).join('');
     const uncNames = unconfirmed.map((t) => esc(displayName(t))).join(' · ');
-    const stageCard = (key, cls, title, body) => {
+    const stageCard = (key, cls, badgeNo, title, body) => {
       const p = key === 'platinum'
         ? { done: earnable.filter((t) => earned.has(t.id)).length, total: 54 }
         : stageProgress(key);
       return `<div class="rm-stage ${cls}">
-        <div class="rm-head"><strong>${title}</strong><span class="rm-prog">${p.done} / ${p.total} earned</span><button type="button" class="rm-btn" data-stage="${key}">Show these in the Tracker <svg class="rm-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h12.2l-4.6-4.6L13 5l7 7-7 7-1.4-1.4 4.6-4.6H4z"/></svg></button></div>
+        <div class="rm-head"><span class="rm-badge">${badgeNo}</span><strong>${title}</strong><span class="rm-prog">${p.done} / ${p.total} earned</span><button type="button" class="rm-btn" data-stage="${key}">Show these in the Tracker <svg class="rm-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h12.2l-4.6-4.6L13 5l7 7-7 7-1.4-1.4 4.6-4.6H4z"/></svg></button></div>
         <div class="rm-bar"><div class="rm-fill" style="width:${p.total ? Math.round((p.done / p.total) * 100) : 0}%"></div></div>
         <div class="rm-body">${body}</div>
       </div>`;
     };
     $('roadmapStages').innerHTML =
-      stageCard(1, 's1', 'Stage 1 — Missable Checkpoint FIRST (Before Chapter 1 Ends)',
-        `<p>One trophy can be lost for good, so it comes before everything else: ${chipT(T(28), 'meditate at every spot — the Chapter 1 spot is on Lucia’s balcony')} ${citeChips(['Exophase', 'PowerPyx'])} Meditate at Lucia’s balcony spot <strong>before</strong> you complete Chapter 1. The spot disappears when the chapter ends; every other meditation spot across Leonida can be done as you reach it.</p>`)
-      + stageCard(2, 's2', 'Stage 2 — Play the Story (20 Trophies)',
-        `<p><span class="grp">Chapters, from the official descriptions</span> ${citeChips(['Exophase'])}: ${chapters}</p>
-         <p><span class="grp">Named story missions:</span> ${missions} <span class="grp">Stranger finales:</span> ${strands}</p>
+      stageCard(1, 's1', '01', 'Stage 1 — Missable Checkpoint FIRST (Before Chapter 1 Ends)',
+        `<p>One trophy can be lost for good, so it comes before everything else: ${chipT(T(28), 'meditate at every spot — the Chapter 1 spot is on Lucia’s balcony')} ${citeChips(['exo', 'pyx'])} Meditate at Lucia’s balcony spot <strong>before</strong> you complete Chapter 1. The spot disappears when the chapter ends; every other meditation spot across Leonida can be done as you reach it.</p>`)
+      + stageCard(2, 's2', '02', 'Stage 2 — Play the Story (14 Trophies)',
+        `<p><span class="grp">Chapters, from the official descriptions</span> ${citeChips(['exo'])}: ${chapters}</p>
+         <p><span class="grp">Named story missions:</span> ${missions}</p>
          <p>Two Golds: <strong>${spoilerOn ? 'the finale Gold' : 'You Gotta Know When to Get Off'}</strong> (the final mission) finishes here in Stage 2; <strong>A Long Road</strong> (100% Completion) is listed here but only completes later, in Stage 4 cleanup.</p>`)
-      + stageCard(3, 's3', 'Stage 3 — Collectibles & Exploration (4 Trophies)',
-        `<p>${collect} ${citeChips(['Exophase'])}</p>
+      + stageCard(3, 's3', '03', 'Stage 3 — Collectibles & Exploration (4 Trophies)',
+        `<p>${collect} ${citeChips(['exo'])}</p>
          <p>Every collectible and its count above is exactly as the official descriptions state them. These are long counters — start them during the story and finish in free roam. (The fifth collectible-kind trophy, the missable meditation trophy, is counted in Stage 1.)</p>`)
-      + stageCard(4, 's4', 'Stage 4 — Activities, Strangers, Challenges & Money (29 Trophies)',
-        `<div class="rm-cols">${s4groups}</div>
+      + stageCard(4, 's4', '04', 'Stage 4 — Activities, Strangers, Challenges & Money (35 Trophies)',
+        `<p><span class="grp">Strangers & strands:</span> ${strands}</p>
+         <div class="rm-cols">${s4groups}</div>
          <div class="rm-unconf"><strong>UNCONFIRMED AT LAUNCH — 5 trophies:</strong> ${uncNames}. Their triggers were not verified on launch day (19 Nov 2026); do them last, once the cited guides confirm how they work. (One of the five is a story trophy, counted in Stage 2’s partition.)</div>`)
-      + stageCard('platinum', 'final', 'Final — Auto-Platinum: Vice Got a Price!',
+      + stageCard('platinum', 'final', '★', 'Final — Auto-Platinum: Vice Got a Price!',
         `<p>${chipT(T(1), 'the Platinum')} There is no task for this one: it unlocks automatically the moment the other 54 trophies are all earned — 54 earnable + 1 Platinum = 55 — and this tracker ticks it for you, in both directions.</p>`);
     $('missableAlertText').textContent = MISSABLE_TEXT;
   }
@@ -372,8 +382,8 @@ async function main() {
     for (const t of trophies) for (const s of t.steps || []) for (const c of s.cites) perSource[c]++;
     const stats = `<span class="rm-chip">55 Trophies</span><span class="rm-chip">55/55 Guides</span>`
       + `<span class="rm-chip">${totalSteps} Steps</span><span class="rm-chip">${totalCites} Cited Statements</span>`
-      + SOURCE_ORDER.map((n) => `<span class="rm-chip">${n}: ${perSource[n]} cites</span>`).join('');
-    const srcList = SOURCE_ORDER.map((n) => `<li><a href="${SOURCE_URLS[n]}" target="_blank" rel="noopener noreferrer">${n}</a> — ${esc(SOURCE_BLURB[n])}</li>`).join('');
+      + SOURCE_ORDER.map((n) => `<span class="rm-chip">${esc(srcLabel(n))}: ${perSource[n]} cites</span>`).join('');
+    const srcList = SOURCE_ORDER.map((n) => `<li><a href="${srcUrl(n)}" target="_blank" rel="noopener noreferrer">${esc(srcLabel(n))}</a> — ${esc(srcBlurb(n))}</li>`).join('');
     const unc = spoilerEl.checked
       ? '<p>5 trophies are badged UNCONFIRMED AT LAUNCH. Their names stay locked in this list while “Hide Story Spoilers” is on; turn spoilers off to see them here.</p>'
       : `<ul>${unconfirmed.map((t) => `<li><strong>${esc(t.name)}</strong> — “${esc(t.description)}”</li>`).join('')}</ul>`;
