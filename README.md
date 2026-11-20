@@ -1,9 +1,8 @@
 # Road to the Platinum — GTA VI Trophy Guide & Tracker
 
-[![make.fun](https://img.shields.io/badge/make.fun-gta6--trophy--guide--01-ff2e88)](https://make.fun/c/gta6-trophy-guide-01)
+[![make.fun · gta6-trophy-guide-01](https://make.fun/badge/gta6-trophy-guide-01.svg)](https://make.fun/bounty/gta6-trophy-guide-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-trophy-guide-01)
 [![rank](https://make.fun/badge/gta6-trophy-guide-01/Nawadays-ai/gta6-trophy-guide/rank.svg)](https://make.fun/bounty/gta6-trophy-guide-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-trophy-guide-01)
 [![reward](https://make.fun/badge/gta6-trophy-guide-01/Nawadays-ai/gta6-trophy-guide/reward.svg)](https://make.fun/bounty/gta6-trophy-guide-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-trophy-guide-01)
-[![repo](https://img.shields.io/badge/repo-Nawadays--ai%2Fgta6--trophy--guide-00c2a8)](https://github.com/Nawadays-ai/gta6-trophy-guide)
 
 An offline guide and tracker for all **55 PlayStation 5 trophies** of Grand Theft Auto VI (1 platinum, 2 gold, 6 silver, 46 bronze — 1,350 points), built for the [gta6-trophy-guide-01](https://make.fun/c/gta6-trophy-guide-01) bounty on make.fun.
 
